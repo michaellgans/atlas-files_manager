@@ -1,11 +1,14 @@
 // Task 0 - Redis Utils: Contains the Class Redis Client
 
-import { interfaces } from 'mocha';
 import redis from 'redis';
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    try {
+      this.client = redis.createClient();
+    } catch (err) {
+      console.log('Could not create the client', err);
+    }
 
     // Message Displayed on Connection
     this.client.on('connect', () => {
@@ -37,10 +40,11 @@ class RedisClient {
   };
 
   // Stores the value by a key
+  // TODO: look into mode for duration type
   async set(key, value, time) {
     try {
       await this.client.set(key, value, time);
-      console.log(`Your key ${key} has been set with a value of ${value} and a duration of ${time}.`)
+      console.log(`Key: ${key}\nValue: ${value}\nTime: ${time}`)
     } catch (err) {
       console.error('Could not SET value:', err);
     }
@@ -57,14 +61,5 @@ class RedisClient {
   };
 }
 
-// Testing
-// const client = new RedisClient();
-
-// setTimeout(() => {
-//   console.log(client.isAlive());
-// }, 3000);
-
-// client.set('ChrisAndMichael', 42, 9000);
-
-// const value = client.get('ChrisAndMichael');
-// console.log(value);
+const redisClient = new RedisClient();
+export default redisClient;
