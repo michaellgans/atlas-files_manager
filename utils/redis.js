@@ -4,14 +4,12 @@ import redis from 'redis';
 
 class RedisClient {
   constructor() {
-    try {
-      this.client = redis.createClient();
-    } catch (err) {
-      console.log('Could not create the client', err);
-    }
+    // Create Client
+    this.client = redis.createClient();
 
     // Message Displayed on Connection
     this.client.on('connect', () => {
+      this.isReady = true;
       console.log('Successfully connected to the client! :)');
     });
 
@@ -19,14 +17,22 @@ class RedisClient {
     this.client.on('error', () => {
       console.log('Could not connect to the client. :(');
     });
+
+    // Return a promise to wait for connection
+    this.connectPromise = new Promise((resolve, reject) => {
+      this.client.on('ready', () => {resolve()});
+      this.client.on('error', () => {reject()});
+    })
   }
 
   // Function to test if client is connected
-  isAlive() {
-    if (this.client.ready) {
-      return true
+  async isAlive() {
+    try {
+      await this.connectPromise;
+      return true;
+    } catch (err) {
+      return false;
     }
-    return false
   }
 
   // Returns the value of a key
