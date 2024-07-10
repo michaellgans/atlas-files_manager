@@ -6,10 +6,10 @@ const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rq
 class DBClient {
   constructor() {
     // Database Connection
-    // TODO:
+    // TODO: do we need these if we already connect?
     // DB_HOST - localhost
     // DB_PORT - 27017
-    // DB_DATABASE - files_manager
+    this.database = 'files_manager';
     this.client = new MongoClient(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -27,20 +27,23 @@ class DBClient {
       return true;
     } catch (error) {
       return false;
-    // TODO: Do we need to close the connection?
-    } finally {
-      await this.client.close();
     }
   }
 
-  // TODO
+  // Returns the number of documents in the user collection
   async nbUsers() {
-    pass
+    const db = this.client.db(this.database);
+    const userDocs = db.collection('users');
+    const userDocCount = userDocs.countDocuments();
+    return userDocCount;
   }
 
-  // TODO
+  // Returns the number of documents in the files collection
   async nbFiles() {
-    pass
+    const db = this.client.db(this.database);
+    const fileDocs = db.collection('files');
+    const fileDocCount = fileDocs.countDocuments();
+    return fileDocCount;
   }
 }
 
@@ -48,6 +51,10 @@ async function test() {
   const dbClient = new DBClient();
   const alive = await dbClient.isAlive();
   console.log(alive);
+  const users = await dbClient.nbUsers();
+  console.log(users);
+  const files = await dbClient.nbFiles();
+  console.log(files);
 }
 
 test();
