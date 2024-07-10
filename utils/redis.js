@@ -1,6 +1,7 @@
 // Task 0 - Redis Utils: Contains the Class Redis Client
 
 import redis from 'redis';
+import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
@@ -23,6 +24,10 @@ class RedisClient {
       this.client.on('ready', () => {resolve()});
       this.client.on('error', () => {reject()});
     })
+
+    this.getAsync = promisify(this.client.get).bind(this.client);
+    this.setAsync = promisify(this.client.set).bind(this.client);
+    this.delAsync = promisify(this.client.del).bind(this.client);
   }
 
   // Function to test if client is connected
@@ -38,19 +43,20 @@ class RedisClient {
   // Returns the value of a key
   async get(key) {
     try {
-      const value = await this.client.get(key);
-      return value;
+      await this.connectPromise;
+      const value = await this.getAsync(key);
+      return value !== null ? value : null;
     } catch (err) {
       console.error('Could not GET value:', err);
+      return null;
     }
   };
 
   // Stores the value by a key
-  // TODO: look into mode for duration type
   async set(key, value, time) {
     try {
-      await this.client.set(key, value, time);
-      console.log(`Key: ${key}\nValue: ${value}\nTime: ${time}`)
+      await this.connectPromise;
+      await this.setAsync(key, value, 'EX', time);
     } catch (err) {
       console.error('Could not SET value:', err);
     }
@@ -59,8 +65,8 @@ class RedisClient {
   // Deletes a value of a key
   async del(key) {
     try {
-      await this.client.del(key);
-      console.log(`Key ${key} has been deleted.`)
+      await this.connectPromise;
+      await this.delAsync(key);
     } catch (err) {
       console.error('Could not delete key', err);
     }
