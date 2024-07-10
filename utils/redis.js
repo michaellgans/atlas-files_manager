@@ -45,6 +45,7 @@ class RedisClient {
     try {
       await this.connectPromise;
       const value = await this.getAsync(key);
+      // If value isn't null, return value, else null.
       return value !== null ? value : null;
     } catch (err) {
       console.error('Could not GET value:', err);
