@@ -6,12 +6,17 @@ const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rq
 class DBClient {
   constructor() {
     // Database Connection
+    // TODO:
+    // DB_HOST - localhost
+    // DB_PORT - 27017
+    // DB_DATABASE - files_manager
     this.client = new MongoClient(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
   }
 
+  // Returns true when connection to MongoDB is successful
   async isAlive() {
     try {
       // Connect the client to the server
@@ -27,6 +32,16 @@ class DBClient {
       await this.client.close();
     }
   }
+
+  // TODO
+  async nbUsers() {
+    pass
+  }
+
+  // TODO
+  async nbFiles() {
+    pass
+  }
 }
 
 async function test() {
@@ -36,3 +51,7 @@ async function test() {
 }
 
 test();
+
+// Export
+// const dbClient = newDBClient();
+// module.exports dbClient;
