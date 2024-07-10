@@ -1,20 +1,38 @@
+// Task 1 - Connecting to MongoDB
+
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rqhsejc.mongodb.net/?retryWrites=true&w=majority&appName=Files-Manager-Cluster";
-// Create a new MongoClient
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-async function run() {
-  try {
-    // Connect the client to the server    (optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+
+class DBClient {
+  constructor() {
+    // Database Connection
+    this.client = new MongoClient(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  }
+
+  async isAlive() {
+    try {
+      // Connect the client to the server
+      await this.client.connect();
+      // Send a ping to confirm a successful connection
+      await this.client.db("admin").command({ ping: 1 });
+      console.log("Successfully pinged.");
+      return true;
+    } catch (error) {
+      return false;
+    // TODO: Do we need to close the connection?
+    } finally {
+      await this.client.close();
+    }
   }
 }
-run().catch(console.dir);
+
+async function test() {
+  const dbClient = new DBClient();
+  const alive = await dbClient.isAlive();
+  console.log(alive);
+}
+
+test();
