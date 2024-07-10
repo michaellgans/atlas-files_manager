@@ -1,12 +1,9 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rqhsejc.mongodb.net/?retryWrites=true&w=majority&appName=Files-Manager-Cluster";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// Create a new MongoClient
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 async function run() {
   try {
