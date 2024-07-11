@@ -6,9 +6,6 @@ const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rq
 class DBClient {
   constructor() {
     // Database Connection
-    // TODO: do we need these if we already connect?
-    // DB_HOST - localhost
-    // DB_PORT - 27017
     this.database = 'files_manager';
     this.client = new MongoClient(uri, {
       useNewUrlParser: true,
@@ -47,18 +44,18 @@ class DBClient {
   }
 }
 
-async function test() {
-  const dbClient = new DBClient();
-  const alive = await dbClient.isAlive();
-  console.log(alive);
-  const users = await dbClient.nbUsers();
-  console.log(users);
-  const files = await dbClient.nbFiles();
-  console.log(files);
-}
+// async function test() {
+//   const dbClient = new DBClient();
+//   const alive = await dbClient.isAlive();
+//   console.log(alive);
+//   const users = await dbClient.nbUsers();
+//   console.log(users);
+//   const files = await dbClient.nbFiles();
+//   console.log(files);
+// } For Tomas <3 :)
 
-test();
+// test();
 
 // Export
-// const dbClient = newDBClient();
-// module.exports dbClient;
+const dbClient = new DBClient();
+module.exports = dbClient;
