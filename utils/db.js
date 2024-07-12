@@ -23,11 +23,11 @@ class DBClient {
   }
 
   // Returns true when connection to MongoDB is successful
-  async isAlive() {
+  isAlive() {
     try {
       // Send a ping to confirm a successful connection
       // this.client.ready();
-      await this.client.connect();
+      this.client.connect();
       console.log("Successfully pinged.");
       return true;
     } catch (error) {
