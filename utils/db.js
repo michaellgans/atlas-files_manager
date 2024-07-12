@@ -12,33 +12,42 @@ class DBClient {
       useUnifiedTopology: true,
     });
     // Connect the client to the server
-    this.client.connect();
+    this.client.connect((err) => {
+      if (err) {
+        console.err('Failed to connect to MongoDB', err);
+        return;
+      }
+      console.log('Connected to MongoDB');
+      this.db = this.client.db(this.database);
+    });
   }
 
   // Returns true when connection to MongoDB is successful
   async isAlive() {
     try {
       // Send a ping to confirm a successful connection
-      await this.client.db("admin").command({ ping: 1 });
+      // this.client.ready();
+      await this.client.connect();
       console.log("Successfully pinged.");
       return true;
     } catch (error) {
+      console.error(error);
       return false;
     }
   }
 
   // Returns the number of documents in the user collection
   async nbUsers() {
-    const db = this.client.db(this.database);
-    const userDocs = db.collection('users');
+    // const db = this.client.db(this.database);
+    const userDocs = this.db.collection('users');
     const userDocCount = userDocs.countDocuments();
     return userDocCount;
   }
 
   // Returns the number of documents in the files collection
   async nbFiles() {
-    const db = this.client.db(this.database);
-    const fileDocs = db.collection('files');
+    // const db = this.client.db(this.database);
+    const fileDocs = this.db.collection('files');
     const fileDocCount = fileDocs.countDocuments();
     return fileDocCount;
   }
@@ -52,7 +61,8 @@ class DBClient {
 //   console.log(users);
 //   const files = await dbClient.nbFiles();
 //   console.log(files);
-// } For Tomas <3 :)
+// }
+// For Tomas <3 :)
 
 // test();
 

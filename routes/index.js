@@ -11,7 +11,7 @@ const routes = (app) => {
   app.get('/stats', AppController.getStats);
 
   // Users POST route controller
-  app.post('/users', UsersController.postNew);
+  // app.post('/users', UsersController.postNew);
 };
 
 export default routes;
