@@ -11,13 +11,13 @@ class DBClient {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    // Connect the client to the server
+    this.client.connect();
   }
 
   // Returns true when connection to MongoDB is successful
   async isAlive() {
     try {
-      // Connect the client to the server
-      await this.client.connect();
       // Send a ping to confirm a successful connection
       await this.client.db("admin").command({ ping: 1 });
       console.log("Successfully pinged.");
