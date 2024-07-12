@@ -26,7 +26,6 @@ class DBClient {
   isAlive() {
     try {
       // Send a ping to confirm a successful connection
-      // this.client.ready();
       this.client.connect();
       console.log("Successfully pinged.");
       return true;
@@ -38,7 +37,6 @@ class DBClient {
 
   // Returns the number of documents in the user collection
   async nbUsers() {
-    // const db = this.client.db(this.database);
     const userDocs = this.db.collection('users');
     const userDocCount = userDocs.countDocuments();
     return userDocCount;
@@ -46,25 +44,11 @@ class DBClient {
 
   // Returns the number of documents in the files collection
   async nbFiles() {
-    // const db = this.client.db(this.database);
     const fileDocs = this.db.collection('files');
     const fileDocCount = fileDocs.countDocuments();
     return fileDocCount;
   }
 }
-
-// async function test() {
-//   const dbClient = new DBClient();
-//   const alive = await dbClient.isAlive();
-//   console.log(alive);
-//   const users = await dbClient.nbUsers();
-//   console.log(users);
-//   const files = await dbClient.nbFiles();
-//   console.log(files);
-// }
-// For Tomas <3 :)
-
-// test();
 
 // Export
 const dbClient = new DBClient();
