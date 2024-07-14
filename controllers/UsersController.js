@@ -10,24 +10,26 @@ class UsersController {
       // Body of .json package
       const userEmail = req.body.email;
       const userPassword = req.body.password;
-      const hashedPassword = crypto.createHash('sha1').update(userPassword).digest('hex');
-      const newDocument = { email: userEmail, password: hashedPassword };
 
       // Email is missing: 400
       if (!userEmail) {
-        return res.status(400).send("Missing email"); // added return
+        return res.status(400).send({ error: "Missing email" }); // added return
       }
       // Password is missing: 400
       if (!userPassword) {
-        return res.status(400).send("Missing password"); // added return
+        return res.status(400).send({ error: "Missing password" }); // added return
       }
+
+      // Hashing Password
+      const hashedPassword = crypto.createHash('sha1').update(userPassword).digest('hex');
+      const newDocument = { email: userEmail, password: hashedPassword };
 
       // Returns null when no record is found
       const existingRecord = await userDocs.findOne({ email: userEmail });
 
       // User already exists: 400
       if (existingRecord !== null) {
-        return res.status(400).send("Already Exists"); // added return
+        return res.status(400).send({ error: "Already exists" }); // added return
       }
 
       const result = await userDocs.insertOne(newDocument); // added await
