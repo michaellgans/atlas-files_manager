@@ -4,7 +4,10 @@ import dbClient from '../utils/db.js';
 import crypto from 'crypto';
 
 class UsersController {
+  // - Users Controller Class - 
+  // Manages User Data creation and storage with MongoDB
   static async postNew(req, res) {
+    // Posts new user to Mongo Database
     try {
       const userDocs = await dbClient.db.collection('users');
       // Body of .json package
@@ -39,6 +42,11 @@ class UsersController {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  static async getMe(req, res) {
+    // Retrieves user based on Auth Token
+    return
   }
 }
 
