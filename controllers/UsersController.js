@@ -1,7 +1,7 @@
 // Users Controller
 
 import dbClient from '../utils/db.js';
-import sha1 from 'crypto-js/sha1.js';
+import sha1 from 'crypto-js/sha1';
 
 class UsersController {
   static async postNew(req, res) {
