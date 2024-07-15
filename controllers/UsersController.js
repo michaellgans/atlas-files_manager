@@ -1,7 +1,9 @@
 // Users Controller
 
 import dbClient from '../utils/db.js';
+import redisClient from '../utils/redis.js';
 import crypto from 'crypto';
+import { ObjectID } from 'mongodb';
 
 class UsersController {
   // - Users Controller Class - 
@@ -46,7 +48,40 @@ class UsersController {
 
   static async getMe(req, res) {
     // Retrieves user based on Auth Token
-    return
+    const token = req.headers['x-token'];
+
+    // No token provided: 401
+    if (!token) {
+      return res.status(401).send({ error: 'Unauthorized. No Token Provided' });
+    }
+
+    // Retrieve User Based on Provided Auth Token
+    try {
+      // Wait for Redis to return existing token
+      const fullToken = `auth_${token}`;
+      const userId = await redisClient.get(fullToken);
+
+      // No token found: 401
+      if (!userId) {
+        return res.status(401).send({ error: 'Unauthorized: No Token Found' });
+      }
+
+      const userDocs = dbClient.db.collection('users');
+      const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+
+      // No User found: 401
+      if (!existingUser) {
+        return res.status(401).send({ error: 'Unauthorized: No User Found' });
+      }
+
+      // Response to send if User found
+      const responseObject = { id: existingUser._id, email: existingUser.email };
+
+      // Response from server
+      return res.status(200).send(responseObject);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
