@@ -9,13 +9,16 @@ class FilesController {
   static async postUpload(req, res) {
     // Uploads file to DB
 
+    // Declare file variables
+    let userId, fileName, fileType, fileData, newFileObject;
+
     // Authorize User
     try {
       const token = req.headers['x-token'];
 
       // Wait for Redis to return existing token
       const fullToken = `auth_${token}`;
-      const userId = await redisClient.get(fullToken);
+      userId = await redisClient.get(fullToken);
 
       const userDocs = dbClient.db.collection('users');
       const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
@@ -24,7 +27,6 @@ class FilesController {
         throw err;
       }
 
-      console.log("You're Authorized YAY!!!!!!")
     } catch (err) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
@@ -35,7 +37,7 @@ class FilesController {
       if (!req.body.name) {
         return res.status(400).send({ error: 'Missing name' });
       } else {
-        const fileName = req.body.name;
+        fileName = req.body.name;
       }
 
       // Check if body has type and is accepted type
@@ -43,14 +45,14 @@ class FilesController {
       if (!req.body.type || !acceptedTypes.includes(req.body.type)) {
         return res.status(400).send({ error: 'Missing type' });
       } else {
-        const fileType = req.body.type;
+        fileType = req.body.type;
       }
 
       // Check if data is missing unless type is folder
       if (!req.body.data && fileType !== 'folder') {
         return res.status(400).send({ error: 'Missing data' });
       } else if (fileType === 'file' || fileType === 'image') {
-        const fileData = req.body.data;
+        fileData = req.body.data;
       }
 
       // Set default values for parentId and isPublic
@@ -77,8 +79,38 @@ class FilesController {
       if (req.body.isPublic) {
         isPublic = req.body.isPublic;
       }
+
+      // Check for folder path in environment, otherwise set default
+      let filePath = process.env.FOLDER_PATH;
+      if (!filePath) {
+        filePath = '/tmp/files_manager' // Add slash?
+      }
+      // Create File Object
+      newFileObject = {
+        userId: userId,
+        name: fileName,
+        type: fileType,
+        isPublic: isPublic,
+        parentId: parentId,
+        localPath: filePath
+      };
+
     } catch (err) {
-      return
+      return res.status(400).send({ error: 'New File Object not Created '});
+    }
+
+    // Store file in Database, Create File Locally
+    try {
+      // Insert new file object into database
+      const fileDocs = dbClient.db.collection('files');
+      const result = await fileDocs.insertOne(newFileObject);
+
+      // Write to new file
+
+      // Take return from inserted document and create object for response
+      return res.status(201).send(newFileObject);
+    } catch (err) {
+      return res.status(400).send({ error: 'File upload failed' });
     }
   }
 }
