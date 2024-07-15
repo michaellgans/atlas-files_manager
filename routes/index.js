@@ -2,6 +2,7 @@
 import AppController from '../controllers/AppController.js';
 import UsersController from '../controllers/UsersController.js';
 import AuthController from '../controllers/AuthController.js';
+import FilesController from '../controllers/FilesController.js';
 
 // Routes Object
 const routes = (app) => {
@@ -22,6 +23,9 @@ const routes = (app) => {
 
   // users POST users controller
   app.post('/users', UsersController.postNew);
+
+  // files POST files controller
+  app.post('/files', FilesController.postUpload);
 };
 
 export default routes;
