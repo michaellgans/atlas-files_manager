@@ -52,8 +52,33 @@ class AuthController {
   }
 
   static async getDisconnect(req, res) {
-    // Sign out user based on Auth Token
-    return
+    // Pull token from the header in the request
+    const token = req.header['X-Token'];
+
+    // No token provided: 401
+    if (!token) {
+      return res.status(401).send({ error: 'Unauthorized.' });
+    }
+
+    // Remove the existing token from Redis Storage
+    try {
+      // Wait for Redis to return existing token
+      const fullToken = `auth_${token}`;
+      const existingToken = await redisClient.get(fullToken);
+
+      // No token found: 401
+      if (!existingToken) {
+        return res.status(401).send({ error: 'Unauthorized.' });
+      }
+
+      // Wait for Redis to delete existing token
+      await redisClient.del(fullToken);
+
+      // Response from server
+      return res.status(200).send('Token deleted:', token);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
