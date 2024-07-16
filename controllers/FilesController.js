@@ -2,6 +2,8 @@
 import redisClient from '../utils/redis.js'
 import dbClient from '../utils/db.js';
 import { ObjectID } from 'mongodb';
+import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 class FilesController {
   // - Files Controller Class - 
@@ -10,7 +12,7 @@ class FilesController {
     // Uploads file to DB
 
     // Declare file variables
-    let userId, fileName, fileType, fileData, newFileObject;
+    let userId, fileName, fileType, fileData, filePath, newFileObject;
 
     // Authorize User
     try {
@@ -80,11 +82,9 @@ class FilesController {
         isPublic = req.body.isPublic;
       }
 
-      // Check for folder path in environment, otherwise set default
-      let filePath = process.env.FOLDER_PATH;
-      if (!filePath) {
-        filePath = '/tmp/files_manager' // Add slash?
-      }
+      // Set File Path
+      filePath = '/tmp/files_manager';
+
       // Create File Object
       newFileObject = {
         userId: userId,
@@ -106,6 +106,22 @@ class FilesController {
       const result = await fileDocs.insertOne(newFileObject);
 
       // Write to new file
+      const decodedFileData = Buffer.from(fileData, 'base64').toString('ascii');
+      const finalPath = `${filePath}/${uuidv4()}`;
+
+      // console.log(filePath + fileNameUUID);
+      fs.mkdir('/tmp/files_manager', { recursive: true }, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+      fs.writeFile(finalPath, decodedFileData, err => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('File created successfully');
+        }
+      });
 
       // Take return from inserted document and create object for response
       return res.status(201).send(newFileObject);
