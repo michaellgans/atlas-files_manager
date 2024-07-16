@@ -31,7 +31,7 @@ const routes = (app) => {
   app.get('/files/:id', FilesController.getShow);
 
   // files GET files controller
-  app.get('/files', FilesController.getIndex);
+  // app.get('/files', FilesController.getIndex);
 };
 
 // Export 
