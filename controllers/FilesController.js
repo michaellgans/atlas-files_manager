@@ -26,6 +26,7 @@ class FilesController {
       const userDocs = dbClient.db.collection('users');
       const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
 
+      // Triggers catch
       if (!existingUser) {
         throw err;
       }
@@ -91,23 +92,25 @@ class FilesController {
         filePath = '/tmp/files_manager';
       }
 
+      // CHRIS
       // Create File Object
       newFileObject = {
-        userId: userId,
+        userId: ObjectID(userId),
         name: fileName,
         type: fileType,
         isPublic: isPublic,
-        parentId: parentId,
+        parentId: ObjectID(parentId),
         localPath: filePath
       };
 
+      // CHRIS
       // Create Folder Object
       newFolderObject = {
-        userId: userId,
+        userId: ObjectID(userId),
         name: fileName,
         type: fileType,
         isPublic: isPublic,
-        parentId: parentId,
+        parentId: ObjectID(parentId),
       };
 
     } catch (err) {
@@ -120,12 +123,16 @@ class FilesController {
       // Insert new file object into database
       const fileDocs = dbClient.db.collection('files');
 
+      // CHRIS
       if (fileType === 'folder') {
         const result = await fileDocs.insertOne(newFolderObject);
+        newFolderObject._id = result.insertedId;
         return res.status(201).send(newFolderObject);
       }
 
+      // CHRIS
       const result = await fileDocs.insertOne(newFileObject);
+      newFileObject._id = result.insertedId;
       // FOR TOMAS :)
       // Result will not contain id.  insertOne()
       // Automatically appends this data as _id to newFileObject
@@ -152,6 +159,7 @@ class FilesController {
       // Take return from inserted document and create object for response
       return res.status(201).send(newFileObject);
     } catch (err) {
+      console.error(err);
       return res.status(400).send({ error: 'File upload failed' });
     }
   }
@@ -199,6 +207,41 @@ class FilesController {
       return res.status(404).send({ error: 'Not found' });
     }
   }
+
+  // // Retrieves Files that a user owns by parentId
+  // static async getIndex(req, res) {
+  //   // Authorize User by Token (current user)
+
+  //   let userId;
+
+  //   try { 
+  //     const token = req.headers['x-token'];
+
+  //     // Returns token from Redis
+  //     const fullToken = `auth_${token}`;
+  //     userId = await redisClient.get(fullToken);
+
+  //     // Returns userId from MongoDB
+  //     const userDocs = dbClient.db.collection('users');
+  //     const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+
+  //     // User does not exist: 401
+  //     if (!existingUser) {
+  //       throw err;
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     return res.status(401).send({ error: 'Unauthorized' });
+  //   }
+
+  //   // Find all files by parentId
+  //   try {
+  //     const parentId = await fileDocs.findOne({ userId: userId });
+
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 }
 
 // Export
