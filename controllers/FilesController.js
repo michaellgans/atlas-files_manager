@@ -272,6 +272,90 @@ class FilesController {
       console.error(err);
     }
   }
+
+  // Publishes a document
+  static async putPublish(req, res) {
+    // Authenticate Current User
+    let userId;
+
+    try { 
+      const token = req.headers['x-token'];
+
+      // Returns token from Redis
+      const fullToken = `auth_${token}`;
+      userId = await redisClient.get(fullToken);
+
+      // Returns userId from MongoDB
+      const userDocs = dbClient.db.collection('users');
+      const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+
+      // User does not exist: 401
+      if (!existingUser) {
+        throw err;
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(401).send({ error: 'Unauthorized' });
+    }
+
+    try {
+      // If no file document is linked to the user 
+      // and the ID passed as parameter, return an 
+      // error Not found with a status code 404
+
+      // Define Parameters
+
+      // Make Change - updateOne() ???
+
+      // Insert Document
+      return
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  // Unpublishes a document
+  static async putUnpublish(req, res) {
+    // Authenticate Current User
+    let userId;
+
+    try { 
+      const token = req.headers['x-token'];
+
+      // Returns token from Redis
+      const fullToken = `auth_${token}`;
+      userId = await redisClient.get(fullToken);
+
+      // Returns userId from MongoDB
+      const userDocs = dbClient.db.collection('users');
+      const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+
+      // User does not exist: 401
+      if (!existingUser) {
+        throw err;
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(401).send({ error: 'Unauthorized' });
+    }
+
+    try {
+      // If no file document is linked to the user 
+      // and the ID passed as parameter, return an 
+      // error Not found with a status code 404
+
+      // Define Parameters
+
+      // Make Change
+
+      // Insert Document
+      return
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
 }
 
 // Export

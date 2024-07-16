@@ -32,6 +32,12 @@ const routes = (app) => {
 
   // files GET files controller
   app.get('/files', FilesController.getIndex);
+
+  // files PUT files controller
+  // app.put('/files/:id/publish', FilesController.putPublish);
+
+  // files PUT files controller
+  // app.put('/files/:id/publish', FilesController.putUnpublish);
 };
 
 // Export 
