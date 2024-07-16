@@ -5,6 +5,7 @@ import { ObjectID } from 'mongodb';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { error } from 'console';
+import { send } from 'process';
 
 class FilesController {
   // - Files Controller Class - 
@@ -69,7 +70,7 @@ class FilesController {
 
         // Check if file with parentId is in DB
         const fileDocs = dbClient.db.collection('files');
-        const existingFile = await fileDocs.findOne({ parentId: parentId });
+        const existingFile = await fileDocs.findOne({ _id: new ObjectID(parentId) });
 
         if (existingFile) {
           if (existingFile.type !== 'folder') {
@@ -208,40 +209,69 @@ class FilesController {
     }
   }
 
-  // // Retrieves Files that a user owns by parentId
-  // static async getIndex(req, res) {
-  //   // Authorize User by Token (current user)
+  // Retrieves Files that a user owns by parentId
+  static async getIndex(req, res) {
+    // Authorize User by Token (current user)
 
-  //   let userId;
+    let userId;
 
-  //   try { 
-  //     const token = req.headers['x-token'];
+    try { 
+      const token = req.headers['x-token'];
 
-  //     // Returns token from Redis
-  //     const fullToken = `auth_${token}`;
-  //     userId = await redisClient.get(fullToken);
+      // Returns token from Redis
+      const fullToken = `auth_${token}`;
+      userId = await redisClient.get(fullToken);
 
-  //     // Returns userId from MongoDB
-  //     const userDocs = dbClient.db.collection('users');
-  //     const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+      // Returns userId from MongoDB
+      const userDocs = dbClient.db.collection('users');
+      const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
 
-  //     // User does not exist: 401
-  //     if (!existingUser) {
-  //       throw err;
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     return res.status(401).send({ error: 'Unauthorized' });
-  //   }
+      // User does not exist: 401
+      if (!existingUser) {
+        throw err;
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(401).send({ error: 'Unauthorized' });
+    }
 
-  //   // Find all files by parentId
-  //   try {
-  //     const parentId = await fileDocs.findOne({ userId: userId });
+    // Pagination - default is 0 if not specified
+    const page = parseInt(req.query.page) || 0;
+    const pageSize = 20; // TESTED WITH 5
+    const skip = page * pageSize;
 
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
+    // Find all files by userId or parentId
+    try {
+      const userFiles = dbClient.db.collection('files');
+      const parentId = req.query.parentId;
+
+      // Set query to userId as default
+      let query = { userId: new ObjectID(userId) }
+
+      // Search by parentId if there is one
+      if (parentId) {
+        query.parentId = new ObjectID(parentId);
+        // ParentId isn't linked to existing files
+        const filesWithParent = await userFiles.findOne({ userId: new ObjectID(userId), parentId: new ObjectID(parentId) });
+
+        if (!filesWithParent) {
+          return res.status(200).send([]); // send empty array
+        }
+      }
+
+      // Implement Pagination
+      const aggregateQuery = [
+        { $match: query },
+        { $skip: skip },
+        { $limit: pageSize }
+      ];
+
+      const allFiles = await userFiles.aggregate(aggregateQuery).toArray();
+      return res.status(200).send(allFiles);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
 
 // Export
