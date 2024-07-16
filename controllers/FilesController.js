@@ -12,7 +12,7 @@ class FilesController {
     // Uploads file to DB
 
     // Declare file variables
-    let userId, fileName, fileType, fileData, filePath, newFileObject;
+    let userId, fileName, fileType, fileData, filePath, newFileObject, newFolderObject;
 
     // Authorize User
     try {
@@ -100,14 +100,30 @@ class FilesController {
         localPath: filePath
       };
 
+      // Create Folder Object
+      newFolderObject = {
+        userId: userId,
+        name: fileName,
+        type: fileType,
+        isPublic: isPublic,
+        parentId: parentId,
+      };
+
     } catch (err) {
       return res.status(400).send({ error: 'New File Object not Created '});
     }
 
     // Store file in Database, Create File Locally
+    // if Type Not Database
     try {
       // Insert new file object into database
       const fileDocs = dbClient.db.collection('files');
+
+      if (fileType === 'folder') {
+        const result = await fileDocs.insertOne(newFolderObject);
+        return res.status(201).send(newFolderObject);
+      }
+
       const result = await fileDocs.insertOne(newFileObject);
       // FOR TOMAS :)
       // Result will not contain id.  insertOne()
