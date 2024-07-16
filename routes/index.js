@@ -26,6 +26,12 @@ const routes = (app) => {
 
   // files POST files controller
   app.post('/files', FilesController.postUpload);
+
+  // files GET files controller passing id parameter
+  app.get('/files/:id', FilesController.getShow);
+
+  // files GET files controller
+  app.get('/files', FilesController.getIndex);
 };
 
 // Export 
