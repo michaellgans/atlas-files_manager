@@ -83,7 +83,12 @@ class FilesController {
       }
 
       // Set File Path
-      filePath = '/tmp/files_manager';
+      filePath = process.env.FOLDER_PATH;
+
+      // File path does not exist
+      if (!filePath) {
+        filePath = '/tmp/files_manager';
+      }
 
       // Create File Object
       newFileObject = {
@@ -104,17 +109,21 @@ class FilesController {
       // Insert new file object into database
       const fileDocs = dbClient.db.collection('files');
       const result = await fileDocs.insertOne(newFileObject);
+      // FOR TOMAS :)
+      // Result will not contain id.  insertOne()
+      // Automatically appends this data as _id to newFileObject
 
       // Write to new file
       const decodedFileData = Buffer.from(fileData, 'base64').toString('ascii');
       const finalPath = `${filePath}/${uuidv4()}`;
 
-      // console.log(filePath + fileNameUUID);
-      fs.mkdir('/tmp/files_manager', { recursive: true }, (err) => {
+      // Creates parent directory for file creation
+      fs.mkdir(filePath, { recursive: true }, (err) => {
         if (err) {
           console.error(err);
         }
       });
+      // Writes file to disk ;)
       fs.writeFile(finalPath, decodedFileData, err => {
         if (err) {
           console.error(err);
@@ -131,4 +140,5 @@ class FilesController {
   }
 }
 
+// Export
 export default FilesController;

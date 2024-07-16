@@ -1,4 +1,4 @@
-// Defined Routes
+// Defined Routes for Controllers
 import AppController from '../controllers/AppController.js';
 import UsersController from '../controllers/UsersController.js';
 import AuthController from '../controllers/AuthController.js';
@@ -28,4 +28,5 @@ const routes = (app) => {
   app.post('/files', FilesController.postUpload);
 };
 
+// Export 
 export default routes;

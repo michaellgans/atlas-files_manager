@@ -31,7 +31,10 @@ class AuthController {
       if (!existingUser) {
         return res.status(401).send({ error: 'Unauthorized.' });
       }
+
       const hashedPassword = crypto.createHash('sha1').update(userPassword).digest('hex');
+      
+      // Given password and stored password must exist
       if (existingUser.password !== hashedPassword) {
         return res.status(401).send({ error: 'Unauthorized.' });
       }
@@ -51,6 +54,7 @@ class AuthController {
     }
   }
 
+  // Removes Authentication Token from Redis
   static async getDisconnect(req, res) {
     // Pull token from the header in the request
     const token = req.headers['x-token'];
@@ -82,4 +86,5 @@ class AuthController {
   }
 }
 
+// Export
 export default AuthController;

@@ -1,3 +1,5 @@
+// Starts the Express Server with npm run start-server
+
 import express from 'express';
 import routes from './routes/index.js';
 
@@ -11,4 +13,5 @@ routes(app);
 
 app.listen(port);
 
+// Export
 export default app;

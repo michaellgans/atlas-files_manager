@@ -1,4 +1,4 @@
-// Task 1 - Connecting to MongoDB
+// Connecting to MongoDB
 
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://michaeluser:1Ut55gpPyQ84FxZ0@files-manager-cluster.rqhsejc.mongodb.net/?retryWrites=true&w=majority&appName=Files-Manager-Cluster";

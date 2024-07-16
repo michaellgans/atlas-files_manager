@@ -7,6 +7,7 @@ class AppController {
 
   // Controller Method that checks if Redis/DB are active
   static async getStatus(req, res) {
+    // Connect to both Redis and DB concurrently
     const redisStatus = await redisClient.isAlive();
     const dbStatus = await dbClient.isAlive();
 
@@ -31,4 +32,5 @@ class AppController {
   }
 }
 
+// Export
 export default AppController;

@@ -18,11 +18,12 @@ class UsersController {
 
       // Email is missing: 400
       if (!userEmail) {
-        return res.status(400).send({ error: "Missing email" }); // added return
+        return res.status(400).send({ error: "Missing email" });
       }
+      
       // Password is missing: 400
       if (!userPassword) {
-        return res.status(400).send({ error: "Missing password" }); // added return
+        return res.status(400).send({ error: "Missing password" });
       }
 
       // Hashing Password
@@ -34,13 +35,13 @@ class UsersController {
 
       // User already exists: 400
       if (existingRecord !== null) {
-        return res.status(400).send({ error: "Already exists" }); // added return
+        return res.status(400).send({ error: "Already exists" });
       }
 
-      const result = await userDocs.insertOne(newDocument); // added await
+      const result = await userDocs.insertOne(newDocument);
       const dataToSend = { id: result.insertedId, email: userEmail };
 
-      return res.status(201).send(dataToSend); // added return
+      return res.status(201).send(dataToSend);
     } catch (err) {
       console.error(err);
     }
@@ -85,4 +86,5 @@ class UsersController {
   }
 }
 
+// Export
 export default UsersController;

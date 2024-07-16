@@ -1,4 +1,4 @@
-// Task 0 - Redis Utils: Contains the Class Redis Client
+// Contains the Class Redis Client
 
 import redis from 'redis';
 import { promisify } from 'util';
@@ -30,7 +30,7 @@ class RedisClient {
     this.delAsync = promisify(this.client.del).bind(this.client);
   }
 
-  // Function to test if client is connected
+  // Returns True if Client is Connected
   async isAlive() {
     try {
       await this.connectPromise;
@@ -40,7 +40,7 @@ class RedisClient {
     }
   }
 
-  // Returns the value of a key
+  // Returns the Value of a Key Stored in Redis
   async get(key) {
     try {
       await this.connectPromise;
@@ -53,7 +53,7 @@ class RedisClient {
     }
   };
 
-  // Stores the value by a key
+  // Stores Key: Value Pairs and Their Experations
   async set(key, value, time) {
     try {
       await this.connectPromise;
@@ -63,7 +63,7 @@ class RedisClient {
     }
   };
 
-  // Deletes a value of a key
+  // Deletes a Key: Value Pair
   async del(key) {
     try {
       await this.connectPromise;
@@ -74,5 +74,6 @@ class RedisClient {
   };
 }
 
+// Export
 const redisClient = new RedisClient();
 export default redisClient;
