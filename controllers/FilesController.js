@@ -5,6 +5,7 @@ import { ObjectID } from 'mongodb';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
+import fileQueue from '../worker.js';
 
 class FilesController {
   // - Files Controller Class - 
@@ -153,6 +154,11 @@ class FilesController {
         } else {
           console.log('File created successfully');
         }
+      });
+
+      fileQueue.add({
+        fileId: newFileObject._id,
+        userId: userId
       });
 
       // Take return from inserted document and create object for response
