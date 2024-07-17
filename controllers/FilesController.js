@@ -375,6 +375,55 @@ class FilesController {
       res.status(404).send({ error: 'Not found' });
     }
   }
+
+  // Returns content of file
+  static async getFile(req, res) {
+    // Authenticate Current User
+    let userId;
+
+    // Authenticate User
+    try { 
+      const token = req.headers['x-token'];
+
+      // Returns token from Redis
+      const fullToken = `auth_${token}`;
+      userId = await redisClient.get(fullToken);
+
+      // Returns userId from MongoDB
+      const userDocs = dbClient.db.collection('users');
+      const existingUser = await userDocs.findOne({ _id: ObjectID(userId) });
+
+      // User does not exist: 401
+      if (!existingUser) {
+        throw err;
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(401).send({ error: 'Unauthorized' });
+    }
+
+    // Return file Data
+    try {
+      // Define Parameters
+
+      // If no file with matching file id and user id - 404
+
+      // If isPublic is false, and user doesn't have authentication or isn't the owner of the file - 404
+
+      // If file is not locally present - 404
+
+      // If file is of type 'folder' - 400
+
+      // Determine type of file based on 'name' using mime-type
+
+      // Return file data with correct mime-type
+      return
+
+    } catch (err) {
+      console.error(err)
+      res.status(404).send({ error: 'Not found' });
+    }
+  }
 }
 
 // Export

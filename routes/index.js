@@ -30,6 +30,9 @@ const routes = (app) => {
   // files GET files controller passing id parameter
   app.get('/files/:id', FilesController.getShow);
 
+  // files GET files controller file data
+  app.get('/files/:id/data', FilesController.getFile);
+
   // files GET files controller
   app.get('/files', FilesController.getIndex);
 
