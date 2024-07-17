@@ -405,8 +405,16 @@ class FilesController {
     // Return file Data
     try {
       // Define Parameters
+      const fileID = req.params.id;
+      console.log('File id passed as param:', fileID);
 
       // If no file with matching file id and user id - 404
+      const fileDocs = dbClient.db.collection('files');
+      findFile = await fileDocs.findOne({ _id: ObjectID(fileID) });
+
+      if (!fileID) {
+        res.status(404).send({ error: 'Not found' });
+      }
 
       // If isPublic is false, and user doesn't have authentication or isn't the owner of the file - 404
 
