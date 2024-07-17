@@ -34,10 +34,10 @@ const routes = (app) => {
   app.get('/files', FilesController.getIndex);
 
   // files PUT files controller
-  // app.put('/files/:id/publish', FilesController.putPublish);
+  app.put('/files/:id/publish', FilesController.putPublish);
 
   // files PUT files controller
-  // app.put('/files/:id/publish', FilesController.putUnpublish);
+  app.put('/files/:id/unpublish', FilesController.putUnpublish);
 };
 
 // Export 

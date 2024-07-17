@@ -196,7 +196,7 @@ class FilesController {
       const fileId = req.params.id;
       console.log(`File ID param from Curl: ${fileId}`);
       const fileDocs = dbClient.db.collection('files');
-      const existingFile = await fileDocs.findOne({ _id: ObjectID(fileId), userId: userId });
+      const existingFile = await fileDocs.findOne({ _id: ObjectID(fileId), userId: ObjectID(userId) });
 
       // File does not exist: 401
       if (!existingFile) {
@@ -278,6 +278,7 @@ class FilesController {
     // Authenticate Current User
     let userId;
 
+    // Authenticate User
     try { 
       const token = req.headers['x-token'];
 
@@ -298,20 +299,29 @@ class FilesController {
       res.status(401).send({ error: 'Unauthorized' });
     }
 
+    // Update isPublic to true if file is present
     try {
-      // If no file document is linked to the user 
-      // and the ID passed as parameter, return an 
-      // error Not found with a status code 404
 
       // Define Parameters
+      const fileId = req.params.id;
+      const fileDocs = dbClient.db.collection('files');
+      const existingFile = await fileDocs.findOne({ _id: ObjectID(fileId), userId: ObjectID(userId) });
 
-      // Make Change - updateOne() ???
+      // If no file with matching file id and user id - 404
+      if (!existingFile) {
+        throw err;
+      }
 
-      // Insert Document
-      return
+      // Change isPublic to true
+      fileDocs.updateOne({ _id: ObjectID(fileId) }, { $set: { isPublic: true } });
+      const updatedFile = await fileDocs.findOne({ _id: ObjectID(fileId) });
+
+      // Return file document
+      return res.status(200).send(updatedFile);
 
     } catch (err) {
       console.error(err)
+      res.status(404).send({ error: 'Not found' });
     }
   }
 
@@ -340,20 +350,29 @@ class FilesController {
       res.status(401).send({ error: 'Unauthorized' });
     }
 
+    // Update isPublic to false if file is present
     try {
-      // If no file document is linked to the user 
-      // and the ID passed as parameter, return an 
-      // error Not found with a status code 404
 
       // Define Parameters
+      const fileId = req.params.id;
+      const fileDocs = dbClient.db.collection('files');
+      const existingFile = await fileDocs.findOne({ _id: ObjectID(fileId), userId: ObjectID(userId) });
 
-      // Make Change
+      // If no file with matching file id and user id - 404
+      if (!existingFile) {
+        throw err;
+      }
 
-      // Insert Document
-      return
+      // Change isPublic to false
+      fileDocs.updateOne({ _id: ObjectID(fileId) }, { $set: { isPublic: false } });
+      const updatedFile = await fileDocs.findOne({ _id: ObjectID(fileId) });
+
+      // Return file document
+      return res.status(200).send(updatedFile);
 
     } catch (err) {
       console.error(err)
+      res.status(404).send({ error: 'Not found' });
     }
   }
 }
