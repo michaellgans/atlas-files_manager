@@ -404,7 +404,6 @@ class FilesController {
     try {
       // Define Parameters
       const fileID = req.params.id;
-      console.log('File id passed as param:', fileID);
 
       // If no file with matching file id and user id - 404
       const fileDocs = dbClient.db.collection('files');
@@ -419,9 +418,10 @@ class FilesController {
         return res.status(400).send('A folder doesn\'t have content');
       }
 
+      const fileOwner = existingFile.userId.toString();
       // If isPublic is false and user isn't the owner of the file - 404
-      if (existingFile.isPublic === false && existingFile.userId !== userId) {
-        throw new Error();
+      if (existingFile.isPublic === false && fileOwner !== userId) {
+        throw new Error('This error?');
       }
 
       // If file is not locally present - 404
@@ -431,13 +431,15 @@ class FilesController {
 
       // Determine type of file based on 'name' using mime-type
       const mimeType = mime.lookup(existingFile.name);
-      const fileData = fs.readFile(existingFile.localPath, (err) => {
+      const charSet = mime.charset(mimeType);
+      const fileData = fs.readFileSync(existingFile.localPath, charSet, (err, data) => {
         if (err) {
           console.error(err);
         } else {
           console.log('file read successfully');
+          return data;
         }
-      })
+      });
 
       // Return file data with correct mime-type
       res.setHeader('content-type', mimeType);
@@ -452,3 +454,4 @@ class FilesController {
 
 // Export
 export default FilesController;
+// 278ac3a7-ee41-4341-ba5f-88c864111099
