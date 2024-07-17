@@ -27,14 +27,14 @@ const routes = (app) => {
   // files POST files controller
   app.post('/files', FilesController.postUpload);
 
+  // files GET files controller
+  app.get('/files', FilesController.getIndex);
+
   // files GET files controller passing id parameter
   app.get('/files/:id', FilesController.getShow);
 
   // files GET files controller file data
   app.get('/files/:id/data', FilesController.getFile);
-
-  // files GET files controller
-  app.get('/files', FilesController.getIndex);
 
   // files PUT files controller
   app.put('/files/:id/publish', FilesController.putPublish);

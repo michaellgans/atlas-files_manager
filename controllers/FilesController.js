@@ -4,8 +4,7 @@ import dbClient from '../utils/db.js';
 import { ObjectID } from 'mongodb';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { error } from 'console';
-import { send } from 'process';
+import mime from 'mime-types';
 
 class FilesController {
   // - Files Controller Class - 
@@ -124,23 +123,22 @@ class FilesController {
       // Insert new file object into database
       const fileDocs = dbClient.db.collection('files');
 
-      // CHRIS
       if (fileType === 'folder') {
         const result = await fileDocs.insertOne(newFolderObject);
         newFolderObject._id = result.insertedId;
         return res.status(201).send(newFolderObject);
       }
 
-      // CHRIS
+      // Write to new file
+      const decodedFileData = Buffer.from(fileData, 'base64').toString('ascii');
+      const finalPath = `${filePath}/${uuidv4()}`;
+      newFileObject.localPath = finalPath;
+
       const result = await fileDocs.insertOne(newFileObject);
       newFileObject._id = result.insertedId;
       // FOR TOMAS :)
       // Result will not contain id.  insertOne()
       // Automatically appends this data as _id to newFileObject
-
-      // Write to new file
-      const decodedFileData = Buffer.from(fileData, 'base64').toString('ascii');
-      const finalPath = `${filePath}/${uuidv4()}`;
 
       // Creates parent directory for file creation
       fs.mkdir(filePath, { recursive: true }, (err) => {
@@ -399,7 +397,7 @@ class FilesController {
       }
     } catch (err) {
       console.error(err);
-      res.status(401).send({ error: 'Unauthorized' });
+      res.status(404).send({ error: 'Not found' });
     }
 
     // Return file Data
@@ -410,22 +408,40 @@ class FilesController {
 
       // If no file with matching file id and user id - 404
       const fileDocs = dbClient.db.collection('files');
-      findFile = await fileDocs.findOne({ _id: ObjectID(fileID) });
+      const existingFile = await fileDocs.findOne({ _id: ObjectID(fileID), userId: ObjectID(userId) });
 
-      if (!fileID) {
-        res.status(404).send({ error: 'Not found' });
+      if (!existingFile) {
+        throw new Error();
       }
 
-      // If isPublic is false, and user doesn't have authentication or isn't the owner of the file - 404
+      // If file is of type 'folder' - 400
+      if (existingFile.type === 'folder') {
+        return res.status(400).send('A folder doesn\'t have content');
+      }
+
+      // If isPublic is false and user isn't the owner of the file - 404
+      if (existingFile.isPublic === false && existingFile.userId !== userId) {
+        throw new Error();
+      }
 
       // If file is not locally present - 404
-
-      // If file is of type 'folder' - 400
+      if (!fs.existsSync(existingFile.localPath)) {
+        throw new Error();
+      }
 
       // Determine type of file based on 'name' using mime-type
+      const mimeType = mime.lookup(existingFile.name);
+      const fileData = fs.readFile(existingFile.localPath, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('file read successfully');
+        }
+      })
 
       // Return file data with correct mime-type
-      return
+      res.setHeader('content-type', mimeType);
+      return res.status(200).send(fileData);
 
     } catch (err) {
       console.error(err)
